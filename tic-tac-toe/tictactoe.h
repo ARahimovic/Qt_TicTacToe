@@ -20,6 +20,9 @@ private slots :
 private:
     bool checkWin(int row, int col);
     bool checkDraw();
+    void showWinDrawDialogue();
+    void resetFlags();
+    void resetGame();
     std::pair<int,int> findEmptyCell();
 
     TicTacToeCell* cells[3][3];
@@ -27,5 +30,7 @@ private:
     QLabel* player1;
     QLabel* player2;
     bool isPlayer1 = true;
+    bool hasWon = false;
+    bool isDraw = false;
 };
 #endif // TICTACTOE_H

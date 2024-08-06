@@ -1,9 +1,11 @@
 #include "tictactoe.h"
+#include "qapplication.h"
 #include <QGridLayout>
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QSpacerItem>
 #include <QDebug>
+#include <QMessageBox>
 
 ticTacToe::ticTacToe(QWidget *parent)
     : QMainWindow(parent)
@@ -101,15 +103,10 @@ void ticTacToe::handleCellSelected(int row, int col)
             cell->setReadOnly(true);
             isPlayer1 = !isPlayer1;
 
-            if(checkWin(row,col))
+            if(checkWin(row,col) || checkDraw())
             {
-                qDebug()<< "you Won";
+                showWinDrawDialogue();
             }
-            else if(checkDraw())
-            {
-                qDebug()<< "Draw";
-            }
-
         }
 
         qDebug() << "cell selected : " << row << " col : " << col;
@@ -135,9 +132,11 @@ bool ticTacToe::checkDraw()
     if(empty.first == -1 and empty.second == -1)
     {
         qDebug() << "it is a Draw";
-        return true;
+        isDraw =  true;
+        return isDraw;
     }
-    return false;
+    isDraw = false;
+    return isDraw;
 }
 
 bool ticTacToe::checkWin(int row, int col)
@@ -153,7 +152,10 @@ bool ticTacToe::checkWin(int row, int col)
             if(cells[i][i]->text() != cellText)
                 break;
             if(i == 2)
-                return true;
+            {
+                hasWon = true;
+                return hasWon;
+            }
         }
     }
 
@@ -165,7 +167,10 @@ bool ticTacToe::checkWin(int row, int col)
             if(cells[i][2-i]->text() != cellText)
                 break;
             if(i == 2)
-                return true;
+            {
+                hasWon = true;
+                return hasWon;
+            }
         }
     }
 
@@ -176,7 +181,10 @@ bool ticTacToe::checkWin(int row, int col)
             break;
 
         if(i == 2)
-            return true;
+        {
+            hasWon = true;
+            return hasWon;
+        }
     }
 
     //check entire column
@@ -185,10 +193,74 @@ bool ticTacToe::checkWin(int row, int col)
         if(cells[i][col]->text() != cellText)
             break;
         if(i == 2)
-            return true;
+        {
+            hasWon = true;
+            return hasWon;
+        }
     }
 
     //no win condition met
-    return false;
+    hasWon =  false;
+
+    return hasWon;
+}
+
+void ticTacToe::showWinDrawDialogue()
+{
+    QMessageBox msg;
+    QString messageBoxTitle {};
+    QString messageBoxText {};
+
+    if(hasWon)
+    {
+        messageBoxTitle = "Win";
+        messageBoxText = "Player Win";
+    }
+    else if(isDraw)
+    {
+        messageBoxTitle = "Draw";
+        messageBoxText = "We Have a Draw ";
+    }
+    msg.setWindowTitle(messageBoxTitle);
+    msg.setText(messageBoxText);
+    msg.setIcon(QMessageBox::Information);
+    msg.setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel);
+    msg.setDefaultButton(QMessageBox::Retry);
+
+    int ret = msg.exec();
+    switch (ret) {
+    case QMessageBox::Retry:
+        resetGame();
+        break;
+     case QMessageBox::Cancel:
+         //exit the application
+         QApplication::quit();
+         break;
+
+    default:
+        break;
+    }
+}
+
+void ticTacToe::resetFlags()
+{
+    isPlayer1 = true;
+    hasWon = false;
+    isDraw = false;
+}
+void ticTacToe::resetGame()
+{
+    resetFlags();
+
+    for(int i = 0 ; i < 3; i++)
+    {
+        for(int j = 0 ; j < 3; j++)
+        {
+            cells[i][j]->setReadOnly(false);
+            cells[i][j]->setText("");
+        }
+    }
+    this->centralWidget()->setFocus();
+
 }
 ticTacToe::~ticTacToe() {}
