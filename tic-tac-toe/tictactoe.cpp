@@ -99,14 +99,16 @@ void ticTacToe::handleCellSelected(int row, int col)
                 cell->setText("O");
                 cell->setStyleSheet(cellStyleSheet + "color : orange;");
             }
-            cell->clearFocus();
-            cell->setReadOnly(true);
-            isPlayer1 = !isPlayer1;
 
             if(checkWin(row,col) || checkDraw())
             {
                 showWinDrawDialogue();
+                return;
             }
+
+            cell->clearFocus();
+            cell->setReadOnly(true);
+            isPlayer1 = !isPlayer1;
         }
 
         qDebug() << "cell selected : " << row << " col : " << col;
@@ -214,7 +216,7 @@ void ticTacToe::showWinDrawDialogue()
     if(hasWon)
     {
         messageBoxTitle = "Win";
-        messageBoxText = "Player Win";
+        messageBoxText = isPlayer1 ? "Player 1 Won" : "Player 2 Won";
     }
     else if(isDraw)
     {
